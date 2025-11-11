@@ -1,0 +1,14 @@
+{
+  "name": "hotel-service",
+  "version": "1.0.0",
+  "description": "Hotel microservice with message consumer",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^8.0.0",
+    "amqplib": "^0.10.3"
+  }
+}
