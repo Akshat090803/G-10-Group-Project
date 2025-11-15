@@ -17,7 +17,7 @@ const connectToQueue = async () => {
   }
 };
 
-connectToQueue(); // Connect on app start
+connectToQueue();
 
 const sendMessage = (msg) => {
   if (!channel) {

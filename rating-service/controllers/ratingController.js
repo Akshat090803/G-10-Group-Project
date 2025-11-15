@@ -20,8 +20,9 @@ const getAllRatings = async (req, res) => {
 };
 
 const getUserRatings = async (req, res) => {
-  console.log(`[Rating Service on ${PORT}] SUCCESS request for user ${req.params.userId}`);
-  const ratings = await Rating.find({ userId: req.params.userId });
+  const userId = parseInt(req.params.userId); 
+  console.log(`[Rating Service on ${PORT}] SUCCESS request for user ${userId}`);
+  const ratings = await Rating.find({ userId: userId });
   res.json(ratings);
 };
 

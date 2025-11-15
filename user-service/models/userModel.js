@@ -10,10 +10,10 @@ const findById = async (id) => {
   return rows[0];
 };
 
-const create = async (id, name) => {
+const create = async (name, email) => {
   const { rows } = await db.query(
-    'INSERT INTO users (id, name) VALUES ($1, $2) RETURNING *',
-    [id, name]
+    'INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *',
+    [name, email]
   );
   return rows[0];
 };

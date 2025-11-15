@@ -15,14 +15,31 @@ const pool = new Pool({
     const client = await pool.connect();
     console.log('[User DB] Connected to local PostgreSQL.');
 
-    // Setup DB (this is idempotent)
-    await client.query('CREATE TABLE IF NOT EXISTS users (id VARCHAR(50) PRIMARY KEY, name VARCHAR(100))');
+    // --- FIX APPLIED HERE ---
+    // Changed from DROP TABLE to CREATE TABLE IF NOT EXISTS.
+    // This is now idempotent and will NOT delete your data on restart.
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL
+      )
+    `);
     
-    // Add default user if not present (prevents error on restart)
-    await client.query("INSERT INTO users (id, name) VALUES ('1', 'Alice') ON CONFLICT (id) DO NOTHING");
+    // --- IDEMPOTENT SEEDING ---
+    // Now, we check if the table is empty *before* adding "Alice".
+    // This prevents creating "Alice 2", "Alice 3", etc. on every restart.
+    const { rows } = await client.query('SELECT COUNT(*) FROM users');
+    
+    if (rows[0].count === '0') {
+      await client.query("INSERT INTO users (name, email) VALUES ('Alice', 'alice@example.com')");
+      console.log('[User DB] "users" table created and initial user "Alice" seeded.');
+    } else {
+      console.log('[User DB] "users" table already exists with data. Skipping seed.');
+    }
     
     client.release();
-    console.log('[User DB] PostgreSQL database and table initialized.');
+    console.log('[User DB] PostgreSQL database and table verified.');
   } catch (err) {
     console.error('[User DB] Error initializing local database.', err);
   }

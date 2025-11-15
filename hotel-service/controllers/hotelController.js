@@ -17,9 +17,15 @@ const createHotel = async (req, res) => {
   try {
     const newHotel = new Hotel(req.body);
     await newHotel.save();
-    console.log('[Hotel Service] Created new hotel');
+    console.log(`[Hotel Service] Created new hotel: ${req.body.hotelId}`);
     res.status(201).json(newHotel);
   } catch (err) {
+    // Check for MongoDB duplicate key error (E11000)
+    if (err.code === 11000) {
+      console.warn(`[Hotel Service] Validation failed: Duplicate hotelId ${req.body.hotelId}`);
+      return res.status(400).send(`Error: Hotel ID '${req.body.hotelId}' already exists.`);
+    }
+    // Other validation errors
     res.status(400).send(err.message);
   }
 };

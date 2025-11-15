@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const bookingSchema = new mongoose.Schema({
-  userId: String,
+  userId: Number, 
   hotelId: String,
   days: Number,
   timestamp: Date,
