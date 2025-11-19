@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const MONGO_URL = 'mongodb://localhost:27017/hotel_service_db';
+const MONGO_URL = 'mongodb+srv://akshatjain70233_db_user:V6RHRqKbmH1p7EG6@hotelservice.ptqapgk.mongodb.net/?appName=hotelservice';
 
 const connectDB = async () => {
   try {

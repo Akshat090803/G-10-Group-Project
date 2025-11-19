@@ -7,10 +7,11 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "pg": "^8.11.3",
+    "amqplib": "^0.10.3",
     "axios": "^1.6.0",
+    "express": "^4.18.2",
+    "node-cache": "^5.1.2",
     "opossum": "^8.1.0",
-    "amqplib": "^0.10.3"
+    "pg": "^8.11.3"
   }
 }

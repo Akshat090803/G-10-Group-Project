@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Rating = require('../models/ratingModel');
 
-const MONGO_URL = 'mongodb://localhost:27017/rating_service_db';
+const MONGO_URL = 'mongodb+srv://akshatjain70233_db_user:0SqpkdpKnzETjwN8@g10-project.ysvf10o.mongodb.net/?appName=G10-Project';
 
 const connectDB = async () => {
   try {
