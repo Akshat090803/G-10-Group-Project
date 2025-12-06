@@ -330,7 +330,7 @@ const ratingServiceInstances = [
   { url: 'http://localhost:3005', status: 'DOWN', avgResponseTime: 0, weight: 1 }
 ];
 
-const HEALTH_CHECK_INTERVAL = 5000;
+const HEALTH_CHECK_INTERVAL = 1000;
 
 // --------------------------------------------------
 // HEALTH CHECK POLLER  (with colors)
@@ -374,27 +374,46 @@ healthCheckPoller();
 // --------------------------------------------------
 // WEIGHTED INSTANCE SELECTION (with colors)
 // --------------------------------------------------
-const selectWeightedRatingInstance = () => {
+// const selectWeightedRatingInstance = () => {
+//   const upInstances = ratingServiceInstances.filter(i => i.status === 'UP');
+//   if (upInstances.length === 0) return null;
+
+//   const totalWeight = upInstances.reduce((sum, i) => sum + i.weight, 0);
+//   let random = Math.random() * totalWeight;
+
+//   for (const inst of upInstances) {
+//     random -= inst.weight;
+//     if (random <= 0) {
+//       console.log(
+//         chalk.cyan(`[SELECTED] ${inst.url}`) + 
+//         chalk.white(` | Weight: ${inst.weight.toFixed(5)}`)
+//       );
+//       return inst;
+//     }
+//   }
+
+//   return upInstances[upInstances.length - 1];
+// };
+
+const selectBestRatingInstance = () => {
+  // Filter for only 'UP' instances
   const upInstances = ratingServiceInstances.filter(i => i.status === 'UP');
+
   if (upInstances.length === 0) return null;
 
-  const totalWeight = upInstances.reduce((sum, i) => sum + i.weight, 0);
-  let random = Math.random() * totalWeight;
+  // Sort by weight descending (Highest weight = Lowest Response Time)
+  // If weights are equal, it picks the first one (stable).
+  upInstances.sort((a, b) => b.weight - a.weight);
 
-  for (const inst of upInstances) {
-    random -= inst.weight;
-    if (random <= 0) {
-      console.log(
-        chalk.cyan(`[SELECTED] ${inst.url}`) + 
-        chalk.white(` | Weight: ${inst.weight.toFixed(5)}`)
-      );
-      return inst;
-    }
-  }
+  const bestInstance = upInstances[0];
 
-  return upInstances[upInstances.length - 1];
+  console.log(
+    chalk.cyan(`[SELECTED] ${bestInstance.url}`) + 
+    chalk.white(` | Best Weight: ${bestInstance.weight.toFixed(5)}`)
+  );
+  
+  return bestInstance;
 };
-
 // --------------------------------------------------
 // PROXY FOR /ratings (with colors)
 // --------------------------------------------------
@@ -402,7 +421,8 @@ app.use(
   '/ratings',
   proxy(
     req => {
-      const inst = selectWeightedRatingInstance();
+      // const inst = selectWeightedRatingInstance();
+      const inst = selectBestRatingInstance();
 
       if (!inst) {
         console.log(chalk.redBright(`[ERROR] No rating service UP!`));

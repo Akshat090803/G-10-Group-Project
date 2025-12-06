@@ -9,18 +9,28 @@ const RollingWindow = require('./utils/RollingWindow');
 
 // Track stats for the last 60 seconds
 // const stats = new RollingStats(60000); 
-const stats = new RollingWindow(60000);
+// const stats = new RollingWindow(60000);
+
+const stats = new RollingWindow(10000);
 // --- END IMPROVEMENT ---
 
 const app = express();
 app.use(express.json());
+
+
+app.use((req, res, next) => {
+  res.setHeader('X-Server-Port', PORT);
+  next();
+});
 
 // --- IMPROVEMENT ---
 // Add response-time middleware
 // This will be called for *all* routes, including our /health checks
 app.use(responseTime((req, res, time) => {
   // Push the response time (in ms) into our stats collector
-  stats.record(time);
+  if (res.statusCode < 400) {
+    stats.record(time);
+  }
 }));
 
 // Middleware to inject stats into the request object

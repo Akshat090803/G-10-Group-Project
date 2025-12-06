@@ -2,7 +2,8 @@ const axios = require('axios');
 const Opossum = require('opossum');
 const userModel = require('../models/userModel');
 const mq = require('../config/message-queue');
-const cache = require('../config/cache'); // --- IMPROVEMENT --- Import the cache
+const cache = require('../config/cache'); // Import the cache
+const chalk = require('chalk');
 
 // --- Circuit Breaker Setup ---
 
@@ -10,7 +11,10 @@ const cache = require('../config/cache'); // --- IMPROVEMENT --- Import the cach
 const fetchRatings = async (userId) => {
   console.log(` ATTEMPTING LIVE FETCH for ratings for user ${userId}`);
   // Use a hardcoded rating service URL. In production, this would be from service discovery.
-  const response = await axios.get(`http://localhost:3003/ratings/user/${userId}`);
+  const response = await axios.get(`http://localhost:3000/ratings/user/${userId}`);
+
+  const servedBy = response.headers['x-server-port'];
+  console.log(chalk.green(`[User Service] Request served by Rating Instance on PORT: ${servedBy}`));
   
   // --- IMPROVEMENT --- On success, update the cache with fresh data
   if (response.data) {

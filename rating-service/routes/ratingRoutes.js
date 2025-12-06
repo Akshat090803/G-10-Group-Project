@@ -12,7 +12,6 @@ router.post('/', ratingController.createRating);
 // The FLAKY endpoint. Note how we chain the chaosMiddleware
 router.get(
   '/user/:userId',
-  ratingController.chaosMiddleware,
   ratingController.getUserRatings
 );
 
