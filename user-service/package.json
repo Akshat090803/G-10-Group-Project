@@ -9,10 +9,19 @@
   "dependencies": {
     "amqplib": "^0.10.3",
     "axios": "^1.6.0",
+    "bcryptjs": "^3.0.3",
     "chalk": "^4.1.2",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.3.1",
     "express": "^4.18.2",
+    "google-auth-library": "^10.6.1",
+    "jsonwebtoken": "^9.0.3",
     "node-cache": "^5.1.2",
     "opossum": "^8.1.0",
-    "pg": "^8.11.3"
+    "pg": "^8.11.3",
+    "qrcode": "^1.5.4",
+    "speakeasy": "^2.0.0",
+    "uuid": "^13.0.0",
+    "zod": "^4.3.6"
   }
 }

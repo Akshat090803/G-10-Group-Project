@@ -150,6 +150,11 @@ const getUserDetails = async (req, res) => {
 
 const bookHotel = (req, res) => {
   const { id } = req.params;
+
+  if (parseInt(id) !== parseInt(req.user.id)) {
+    return res.status(403).send('Forbidden: You can only book hotels for your own account.');
+  }
+  
   const { hotelId, days } = req.body;
   
   if (!hotelId ||!days) {
