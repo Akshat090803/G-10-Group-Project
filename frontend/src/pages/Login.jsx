@@ -27,7 +27,7 @@ export default function Login() {
         setNeeds2FA(true);
         setTempUserId(res.data.data.tempUserId);
       } else {
-        localStorage.setItem('accessToken', res.data.data.accessToken);
+        localStorage.setItem('token', res.data.data.accessToken);
         navigate('/dashboard');
       }
     } catch (error) {
@@ -39,7 +39,9 @@ export default function Login() {
     e.preventDefault();
     try {
       const res = await api.post('/auth/2fa/login', { userId: tempUserId, twoFactorCode });
-      localStorage.setItem('accessToken', res.data.data.accessToken);
+      
+      // console.log("Token::",res.data.data.accessToken)
+      localStorage.setItem('token', res.data.data.accessToken);
       navigate('/dashboard');
     } catch (error) {
       console.log("Login",error)

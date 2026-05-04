@@ -18,5 +18,20 @@ api.interceptors.request.use(
   (error) => {
     return Promise.reject(error);
   }
+
+  
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Clear storage and force redirect if token is invalid/expired
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login'; 
+    }
+    return Promise.reject(error);
+  }
 );
 

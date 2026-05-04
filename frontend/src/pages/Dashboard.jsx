@@ -37,6 +37,8 @@ export default function Dashboard() {
 
   const logout = () => {
     localStorage.removeItem('accessToken');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     navigate('/login');
   };
 
