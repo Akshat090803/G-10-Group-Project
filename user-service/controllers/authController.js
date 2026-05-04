@@ -192,6 +192,86 @@ const googleAuthRedirect = async (req, res) => {
   }
 };
 
+// const googleAuthCallback = async (req, res) => {
+//   try {
+//     const code = req.query.code;
+//     if (!code) {
+//       throw new Error("Google authentication failed: Code missing");
+//     }
+
+//     const client = getGoogleClient();
+//     const { tokens } = await client.getToken(code);
+
+//     if (!tokens?.id_token) {
+//       throw new Error("Google authentication failed: ID Token missing");
+//     }
+//     client.setCredentials(tokens);
+
+//     // Verify token and read user information
+//     const ticket = await client.verifyIdToken({
+//       idToken: tokens.id_token,
+//       audience: process.env.GOOGLE_CLIENT_ID,
+//     });
+
+//     const payload = ticket.getPayload();
+//     if (!payload?.email || !payload.email_verified) {
+//       throw new Error("Google authentication failed: Email not verified");
+//     }
+
+//     const normalisedEmail = payload.email.toLowerCase().trim();
+//     let user = await userModel.findByEmail(normalisedEmail);
+
+//     // If user doesn't exist, register them
+//     if (!user) {
+//       const randomPassword = crypto.randomBytes(32).toString("hex");
+//       const passwordHash = await hashPassword(randomPassword);
+      
+//       // In g10, your model uses `name` instead of `username`
+//       const name = payload.name || 'Google User';
+
+//       user = await userModel.create(name, normalisedEmail, passwordHash);
+//       // Immediately verify their email since it came from Google
+//       user = await userModel.updateUser(user.id, { is_email_verified: true });
+//     } else if (!user.is_email_verified) {
+//       user = await userModel.updateUser(user.id, { is_email_verified: true });
+//     }
+
+//     // Session Management (same as standard login)
+//     let sessions = user.refresh_sessions || [];
+//     if (sessions.length >= 5) sessions.shift();
+    
+//     const jti = uuidv4();
+//     sessions.push({ jti, userAgent: req.headers["user-agent"] || "Google OAuth" });
+//     await userModel.updateUser(user.id, { refresh_sessions: JSON.stringify(sessions) });
+
+//     // Create Tokens
+//     const accessToken = createAccessToken(user.id, user.role, user.token_version);
+//     const refreshToken = createRefreshToken(user.id, user.token_version, jti);
+
+//     const isProd = process.env.NODE_ENV === "production";
+    
+//     res.cookie("refreshToken", refreshToken, {
+//       httpOnly: true,
+//       sameSite: "lax",
+//       maxAge: 7 * 24 * 60 * 60 * 1000,
+//       secure: isProd,
+//       path: "/",
+//     });
+
+//     res.cookie("accessToken", accessToken, {
+//       httpOnly: true,
+//       secure: isProd,
+//       sameSite: "lax",
+//       path: "/",
+//     });
+
+//     // Redirect back to frontend on success
+//     res.redirect(`${process.env.FRONTEND_URL}/oauth-success`);
+//   } catch (error) {
+//     console.error("OAuth Error:", error);
+//     res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`);
+//   }
+// };
 const googleAuthCallback = async (req, res) => {
   try {
     const code = req.query.code;
@@ -250,6 +330,7 @@ const googleAuthCallback = async (req, res) => {
 
     const isProd = process.env.NODE_ENV === "production";
     
+    // 1. Keep the refresh token as an HttpOnly cookie (Secure for token refreshing later)
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       sameSite: "lax",
@@ -258,15 +339,9 @@ const googleAuthCallback = async (req, res) => {
       path: "/",
     });
 
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: "lax",
-      path: "/",
-    });
-
-    // Redirect back to frontend on success
-    res.redirect(`${process.env.FRONTEND_URL}/oauth-success`);
+    // 2. Pass the accessToken in the URL so your frontend URLSearchParams can find it
+    res.redirect(`${process.env.FRONTEND_URL}/oauth-success?token=${accessToken}`);
+    
   } catch (error) {
     console.error("OAuth Error:", error);
     res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`);
